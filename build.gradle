@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'java-library'
+//    id 'java-library'
     id 'maven-publish'
 }
 
@@ -8,8 +8,9 @@ group 'org.mkm.example'
 version '0.0.1-SNAPSHOT'
 
 repositories {
-
+    mavenCentral()
     maven {
+//        url "$buildDir/repo"
         def releaseRepoUrl = 'http://localhost:9085/repository/maven-releases/'
         def snapshotsRepoUrl = 'http://localhost:9085/repository/maven-snapshots/'
         url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releaseRepoUrl
@@ -19,13 +20,25 @@ repositories {
             password 'test123'
         }
     }
-    mavenCentral()
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+        }
+    }
+    repositories {
+        maven {
+//            url "$buildDir/repo"
+            def releaseRepoUrl = 'http://localhost:9085/repository/maven-releases/'
+            def snapshotsRepoUrl = 'http://localhost:9085/repository/maven-snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releaseRepoUrl
+            allowInsecureProtocol = true
+            credentials {
+                username 'test'
+                password 'test123'
+            }
         }
     }
 }
@@ -51,7 +64,8 @@ tasks.register('hello') {
 
     sleep 3000
     doFirst() {
-        println "Hello Mike..."
+        println "Hello Mike... project name:  $project.name"
+        println "$buildDir/repo"
     }
 }
 tasks.register('countDependencies') {
