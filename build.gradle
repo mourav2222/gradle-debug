@@ -1,0 +1,81 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group 'org.mkm.example'
+version '0.0.1-SNAPSHOT'
+
+repositories {
+
+    maven {
+        def releaseRepoUrl = 'http://localhost:9085/repository/maven-releases/'
+        def snapshotsRepoUrl = 'http://localhost:9085/repository/maven-snapshots/'
+        url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releaseRepoUrl
+        allowInsecureProtocol = true
+        credentials {
+            username 'test'
+            password 'test123'
+        }
+    }
+    mavenCentral()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+//    toolchain {
+//        languageVersion = JavaLanguageVersion.of(15)
+//    }
+}
+
+dependencies {
+    implementation 'com.google.guava:guava:30.1.1-jre'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.register('hello') {
+
+    sleep 3000
+    doFirst() {
+        println "Hello Mike..."
+    }
+}
+tasks.register('countDependencies') {
+    def configuration = findProperty('configuration') ?: 'compileClasspath'
+    doLast {
+        println "Number of dependencies: ${configurations.getByName(configuration).getAllDependencies().size()}"
+    }
+}
+
+task printProps {
+
+    doLast {
+        println 'Dobavil v konez (no bydet v seredine)'
+    }
+    doFirst {
+        println 'dobavil v na4alo'
+    }
+    doLast {
+        println 'dobavil tosche v konez (proschlyj stal v seredine)'
+    }
+}
+
+compileTestJava.dependsOn countDependencies
+
+tasks.register('configAll') {
+    configurations.all { println it.name }
+}
